@@ -23,6 +23,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'custom_double_converter.dart';
 import 'spin_formatter.dart';
 
 // ignore_for_file: public_member_api_docs
@@ -40,7 +41,7 @@ abstract class BaseSpinBox extends StatefulWidget {
   void Function(double)? get onSubmitted;
   ValueChanged<double>? get onChanged;
   bool Function(double value)? get canChange;
-  String Function(double)? get customFormatText;
+  CustomDoubleConverter? get customDoubleConverter; 
   VoidCallback? get beforeChange;
   VoidCallback? get afterChange;
   bool get readOnly;
@@ -59,12 +60,12 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   TextEditingController get controller => _controller;
   TextInputFormatter get formatter => SpinFormatter(
       min: widget.min, max: widget.max, decimals: widget.decimals);
+      
+  double _parseValue(String text) => widget.customDoubleConverter?.stringToDouble(text)??double.tryParse(text) ?? 0;
 
-  static double _parseValue(String text) => double.tryParse(text) ?? 0;
   String _formatText(double value) {
-    return (widget.customFormatText==null)?
-        value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0'):
-        widget.customFormatText!(value);
+    return widget.customDoubleConverter?.doubleToString(value)??
+      value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
   }
 
   Map<ShortcutActivator, VoidCallback> get bindings {

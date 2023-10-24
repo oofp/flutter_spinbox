@@ -23,6 +23,7 @@
 import 'package:flutter/cupertino.dart';
 
 import '../base_spin_box.dart';
+import '../custom_double_converter.dart';
 import 'spin_button.dart';
 
 part 'third_party/default_rounded_border.dart';
@@ -84,7 +85,7 @@ class CupertinoSpinBox extends BaseSpinBox {
     this.canChange,
     this.beforeChange,
     this.afterChange,
-    this.customFormatText,
+    this.customDoubleConverter,
     this.focusNode,
   })  : assert(min <= max),
         keyboardType = keyboardType ??
@@ -215,7 +216,7 @@ class CupertinoSpinBox extends BaseSpinBox {
   final VoidCallback? afterChange;
 
   @override
-  final String Function(double value)? customFormatText;
+  CustomDoubleConverter? customDoubleConverter; 
 
   /// See [CupertinoTextField.enabled].
   final bool enabled;
