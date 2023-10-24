@@ -20,5 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+export 'src/custom_double_converter.dart';
 export 'src/material/spin_box.dart';
 export 'src/material/spin_box_theme.dart';

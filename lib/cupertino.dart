@@ -21,3 +21,4 @@
 // SOFTWARE.
 
 export 'src/cupertino/spin_box.dart';
+export 'src/custom_double_converter.dart';
