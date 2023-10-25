@@ -65,11 +65,8 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
      widget.customDoubleConverter?.stringToDouble(text)??double.tryParse(text) ?? 0;
 
   String _formatText(double value) {
-    return 
-      hasFocus?
-        value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0'):  
-        widget.customDoubleConverter?.doubleToString(value)??
-          value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
+    return widget.customDoubleConverter?.doubleToString(value)??
+      value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
   }
 
   Map<ShortcutActivator, VoidCallback> get bindings {
