@@ -172,7 +172,7 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   }
 
   void _handleFocusChanged() {
-    print("_handleFocusChanged:$hasFocus text:${_controller.text} cval:${_controller.value} widget.value:${widget.value}");
+    //print("_handleFocusChanged:$hasFocus text:${_controller.text} cval:${_controller.value} widget.value:${widget.value}");
     setState(() {
       if (hasFocus) {
         _controller.text=_cachedValue.toString();
