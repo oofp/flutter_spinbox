@@ -68,7 +68,10 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   }
 
   String _formatText(double value) {
-    final String str =  widget.customDoubleConverter?.doubleToString(value)??
+    final String str =  
+      _focusNode.hasFocus?
+      value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0'):
+      widget.customDoubleConverter?.doubleToString(value)??
       value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
     //print("_formatText value:$value str:$str");
     return str;  
@@ -92,10 +95,10 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
     super.initState();
     _value = widget.value;
     _cachedValue = widget.value;
-    _controller = TextEditingController(text: _formatText(_value));
-    _controller.addListener(_updateValue);
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_handleFocusChanged);
+    _controller = TextEditingController(text: _formatText(_value));
+    _controller.addListener(_updateValue);
   }
 
   @override
