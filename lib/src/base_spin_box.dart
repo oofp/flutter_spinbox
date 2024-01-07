@@ -61,12 +61,17 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   TextInputFormatter get formatter => SpinFormatter(
       min: widget.min, max: widget.max, decimals: widget.decimals);
       
-  double _parseValue(String text) => 
-     widget.customDoubleConverter?.stringToDouble(text)??double.tryParse(text) ?? 0;
+  double _parseValue(String text) {
+     final double value = widget.customDoubleConverter?.stringToDouble(text)??double.tryParse(text) ?? 0;
+     //print("_parseValue text:$text value:$value");
+     return value;
+  }
 
   String _formatText(double value) {
-    return widget.customDoubleConverter?.doubleToString(value)??
+    final String str =  widget.customDoubleConverter?.doubleToString(value)??
       value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
+    //print("_formatText value:$value str:$str");
+    return str;  
   }
 
   Map<ShortcutActivator, VoidCallback> get bindings {
@@ -155,21 +160,27 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   @protected
   double fixupValue(String value) {
     final v = _parseValue(value);
+//    print("fixupValue(entered) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     if (value.isEmpty || (v < widget.min || v > widget.max)) {
       // will trigger notify to _updateValue()
-      _controller.text = _formatText(_cachedValue);
     } else {
       _cachedValue = _value;
     }
+    _controller.text = _formatText(_cachedValue);
+//    print("fixupValue(exit) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     return _cachedValue;
   }
 
   void _handleFocusChanged() {
+    print("_handleFocusChanged:$hasFocus text:${_controller.text} cval:${_controller.value} widget.value:${widget.value}");
     setState(() {
       if (hasFocus) {
+        _controller.text=_cachedValue.toString();
         _selectAll();
+  //      print("_handleFocusChanged(after selectAll) text:${_controller.text}");
       } else {
         final value = fixupValue(_controller.text);
+  //      print("_handleFocusChanged(after fixupValue) text:${_controller.text} value:$value cval:${_controller.value}");
         widget.onSubmitted?.call(value);
       }
     });

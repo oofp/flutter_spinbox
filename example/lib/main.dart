@@ -1,5 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/flutter_spinbox.dart';
+import 'package:intl/intl.dart';
+
+final oCcy = NumberFormat("#,##0", "en_US");
+
+String asAmount(double sum) {
+  return "\$${oCcy.format(sum)}";
+}
+
+class AmountConverter extends CustomDoubleConverter {
+  @override
+  String doubleToString(double val) {
+    String str = asAmount(val);
+    print("AmountConverter::doubleToString val:$val str:$str");
+    return str;
+  }
+
+  @override
+  double stringToDouble(String str) {
+    String str1 =
+        str.startsWith("\$") ? str.substring(1).replaceAll(",", "") : str;
+
+    return str1.isNotEmpty ? double.tryParse(str1) ?? 0 : 0;
+  }
+}
+
+AmountConverter amountConverter = AmountConverter();
 
 void main() => runApp(
       MaterialApp(
@@ -90,6 +116,24 @@ class HorizontalSpinBoxPage extends StatelessWidget {
                 counterText: 'Counter',
               ),
               validator: (text) => text!.isEmpty ? 'Invalid' : null,
+            ),
+            padding: const EdgeInsets.all(16),
+          ),
+          Padding(
+            child: SpinBox(
+              value: 700.0,
+              min: 0.0,
+              max: 1500.0,
+              step: 5.0,
+              //direction: Axis.vertical,
+              acceleration: 5.0,
+              decimals: 0,
+              readOnly: false,
+              customDoubleConverter: amountConverter,
+              decoration: InputDecoration(labelText: 'CPP at age 65'),
+              onChanged: (value) {
+                print("main changed value:$value");
+              },
             ),
             padding: const EdgeInsets.all(16),
           ),
