@@ -67,6 +67,7 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
      return value;
   }
 
+  /*
   String _formatText(double value) {
     if (widget.customDoubleConverter==null) {
       return value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
@@ -80,19 +81,19 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
       return str;  
     }
   }
+  */
 
   String _formatNumber(double val) => val.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
 
-  /*
   String _formatText(double value) {
     // Define the base format function
 
     // Determine the formatting based on focus state and custom converter availability
     return _focusNode.hasFocus || widget.customDoubleConverter == null
-        ? formatNumber(value)
+        ? _formatNumber(value)
         : widget.customDoubleConverter!.doubleToString(value);
   }
-  */
+
   Map<ShortcutActivator, VoidCallback> get bindings {
     return {
       // ### TODO: use SingleActivator fixed in Flutter 2.10+
@@ -167,19 +168,20 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   void _updateController(double oldValue, double newValue) {
     //print("_updateController oldValue:$oldValue newValue:$newValue");
 
+    //No need to change controller when we are already within editting
     if (!focusNode.hasFocus) {
-    final text = _formatText(newValue);
-    final selection = _controller.selection;
-    final oldOffset = value.isNegative ? 1 : 0;
-    final newOffset = _parseValue(text).isNegative ? 1 : 0;
+      final text = _formatText(newValue);
+      final selection = _controller.selection;
+      final oldOffset = value.isNegative ? 1 : 0;
+      final newOffset = _parseValue(text).isNegative ? 1 : 0;
 
-    _controller.value = _controller.value.copyWith(
-      text: text,
-      selection: selection.copyWith(
-        baseOffset: selection.baseOffset - oldOffset + newOffset,
-        extentOffset: selection.extentOffset - oldOffset + newOffset,
-      ),
-    );
+      _controller.value = _controller.value.copyWith(
+        text: text,
+        selection: selection.copyWith(
+          baseOffset: selection.baseOffset - oldOffset + newOffset,
+          extentOffset: selection.extentOffset - oldOffset + newOffset,
+        ),
+      );
     }
   }
 
@@ -189,13 +191,12 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
     //print("fixupValue(entered) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     if (value.isEmpty || (v < widget.min || v > widget.max)) {
       // will trigger notify to _updateValue()
-      _controller.text = _formatText(_cachedValue);
     } else {
       _cachedValue = _value;
       //if (widget.customDoubleConverter!=null) {
-        _controller.text = _formatText(_cachedValue);
       //}
     }
+    _controller.text = _formatText(_cachedValue);
     //print("fixupValue(exit) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     return _cachedValue;
   }
@@ -204,9 +205,7 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
     //print("_handleFocusChanged:$hasFocus text:${_controller.text} cval:${_controller.value} widget.value:${widget.value}");
     setState(() {
       if (hasFocus) {
-        if (widget.customDoubleConverter!=null) {
-          _controller.text=_formatNumber(_cachedValue);
-        }
+        _controller.text=_formatNumber(_cachedValue);
         _selectAll();
         //print("_handleFocusChanged(after selectAll) text:${_controller.text}");
       } else {
