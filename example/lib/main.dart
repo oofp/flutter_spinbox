@@ -53,7 +53,17 @@ void main() => runApp(
       ),
     );
 
-class HorizontalSpinBoxPage extends StatelessWidget {
+class HorizontalSpinBoxPage extends StatefulWidget {
+  @override
+  State<HorizontalSpinBoxPage> createState() => _HorizontalSpinBoxPageState();
+}
+
+class _HorizontalSpinBoxPageState extends State<HorizontalSpinBoxPage> {
+  double cpp = 700;
+  double decValue = 5.0;
+
+  double realInvestmentReturn = 1.25;
+
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
@@ -85,8 +95,9 @@ class HorizontalSpinBoxPage extends StatelessWidget {
           Padding(
             child: SpinBox(
               max: 10.0,
-              value: 5.0,
-              decimals: 1,
+              min: 0.0,
+              value: decValue,
+              decimals: 2,
               step: 0.1,
               decoration: InputDecoration(labelText: 'Decimals'),
             ),
@@ -121,7 +132,7 @@ class HorizontalSpinBoxPage extends StatelessWidget {
           ),
           Padding(
             child: SpinBox(
-              value: 700.0,
+              value: cpp,
               min: 0.0,
               max: 1500.0,
               step: 5.0,
@@ -133,6 +144,30 @@ class HorizontalSpinBoxPage extends StatelessWidget {
               decoration: InputDecoration(labelText: 'CPP at age 65'),
               onChanged: (value) {
                 print("main changed value:$value");
+              },
+            ),
+            padding: const EdgeInsets.all(16),
+          ),
+          Padding(
+            child: SpinBox(
+              value: realInvestmentReturn,
+              min: 0.0,
+              max: 6.0,
+              step: 0.1,
+              //direction: Axis.vertical,
+              acceleration: 0.1,
+              decimals: 2,
+              readOnly: false,
+              customDoubleConverter: null,
+              decoration: const InputDecoration(
+                  prefix: Text('Less risk'),
+                  suffix: Text('More risk'),
+                  labelText:
+                      'Average investment return (0-6%, adjusted to inflation)'),
+              onChanged: (double value) {
+                setState(() {
+                  realInvestmentReturn = value;
+                });
               },
             ),
             padding: const EdgeInsets.all(16),

@@ -68,15 +68,31 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   }
 
   String _formatText(double value) {
-    final String str =  
-      _focusNode.hasFocus?
-      value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0'):
-      widget.customDoubleConverter?.doubleToString(value)??
-      value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
-    //print("_formatText value:$value str:$str");
-    return str;  
+    if (widget.customDoubleConverter==null) {
+      return value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
+    } else {
+      final String str =  
+        _focusNode.hasFocus?
+        value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0'):
+        widget.customDoubleConverter?.doubleToString(value)??
+        value.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
+      //print("_formatText value:$value str:$str");
+      return str;  
+    }
   }
 
+  String _formatNumber(double val) => val.toStringAsFixed(widget.decimals).padLeft(widget.digits, '0');
+
+  /*
+  String _formatText(double value) {
+    // Define the base format function
+
+    // Determine the formatting based on focus state and custom converter availability
+    return _focusNode.hasFocus || widget.customDoubleConverter == null
+        ? formatNumber(value)
+        : widget.customDoubleConverter!.doubleToString(value);
+  }
+  */
   Map<ShortcutActivator, VoidCallback> get bindings {
     return {
       // ### TODO: use SingleActivator fixed in Flutter 2.10+
@@ -121,6 +137,8 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
     final v = _parseValue(_controller.text);
     if (v == _value) return;
 
+    //print("_updateValue v:$v _value:$_value");
+
     if (widget.canChange?.call(v) == false) {
       controller.text = _formatText(_cachedValue);
       setState(() {
@@ -134,6 +152,7 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   }
 
   void setValue(double v) {
+    //print("setValue v:$v value:$value");
     final newValue = v.clamp(widget.min, widget.max);
     if (newValue == value) return;
 
@@ -146,6 +165,9 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
   }
 
   void _updateController(double oldValue, double newValue) {
+    //print("_updateController oldValue:$oldValue newValue:$newValue");
+
+    if (!focusNode.hasFocus) {
     final text = _formatText(newValue);
     final selection = _controller.selection;
     final oldOffset = value.isNegative ? 1 : 0;
@@ -158,19 +180,23 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
         extentOffset: selection.extentOffset - oldOffset + newOffset,
       ),
     );
+    }
   }
 
   @protected
   double fixupValue(String value) {
     final v = _parseValue(value);
-//    print("fixupValue(entered) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
+    //print("fixupValue(entered) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     if (value.isEmpty || (v < widget.min || v > widget.max)) {
       // will trigger notify to _updateValue()
+      _controller.text = _formatText(_cachedValue);
     } else {
       _cachedValue = _value;
+      //if (widget.customDoubleConverter!=null) {
+        _controller.text = _formatText(_cachedValue);
+      //}
     }
-    _controller.text = _formatText(_cachedValue);
-//    print("fixupValue(exit) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
+    //print("fixupValue(exit) value:$value v:$v _value:$_value _cachedValue:$_cachedValue");
     return _cachedValue;
   }
 
@@ -178,12 +204,14 @@ mixin SpinBoxMixin<T extends BaseSpinBox> on State<T> {
     //print("_handleFocusChanged:$hasFocus text:${_controller.text} cval:${_controller.value} widget.value:${widget.value}");
     setState(() {
       if (hasFocus) {
-        _controller.text=_cachedValue.toString();
+        if (widget.customDoubleConverter!=null) {
+          _controller.text=_formatNumber(_cachedValue);
+        }
         _selectAll();
-  //      print("_handleFocusChanged(after selectAll) text:${_controller.text}");
+        //print("_handleFocusChanged(after selectAll) text:${_controller.text}");
       } else {
         final value = fixupValue(_controller.text);
-  //      print("_handleFocusChanged(after fixupValue) text:${_controller.text} value:$value cval:${_controller.value}");
+        //print("_handleFocusChanged(after fixupValue) text:${_controller.text} value:$value cval:${_controller.value}");
         widget.onSubmitted?.call(value);
       }
     });
